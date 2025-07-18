@@ -104,7 +104,7 @@ A collection of **privacy-first, browser-based AI applications** that run comple
 ### Getting Started
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/simple-offline-browser-llm-projects.git
+   git clone https://github.com/tannu64/simple-offline-browser-llm-projects.git
    cd simple-offline-browser-llm-projects
    ```
 

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyLlama Browser Chatbot - Offline AI Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.46/lib/index.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🤖 TinyLlama Chatbot</h1>
+            <p class="subtitle">Offline AI Assistant powered by WebLLM</p>
+        </header>
+
+        <div class="model-status" id="modelStatus">
+            <div class="status-indicator" id="statusIndicator">
+                <div class="loading-spinner"></div>
+                <span id="statusText">Initializing...</span>
+            </div>
+            <div class="progress-container" id="progressContainer" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <span class="progress-text" id="progressText">0%</span>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <p>Hello! I'm TinyLlama, your offline AI assistant. Once I'm fully loaded, I'll be ready to help you with questions and conversations. Please wait while I initialize...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="input-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="Type your message here..." 
+                        rows="1"
+                        disabled
+                    ></textarea>
+                    <button id="sendButton" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="m22 2-7 20-4-9-9-4 20-7z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="input-info">
+                    <small id="inputInfo">Model loading... Please wait</small>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>
+                <strong>Offline AI:</strong> This chatbot runs entirely in your browser using WebGPU acceleration.
+                <br>
+                <small>Powered by <a href="https://github.com/mlc-ai/web-llm" target="_blank">WebLLM</a> and TinyLlama 1.1B</small>
+            </p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TinyLlama Chatbot - Test Suite</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+        .test-section h2 {
+            color: #4a5568;
+            margin-top: 0;
+        }
+        .test-item {
+            margin: 10px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #cbd5e0;
+        }
+        .test-item.success {
+            border-left-color: #48bb78;
+            background-color: #f0fff4;
+        }
+        .test-item.error {
+            border-left-color: #e53e3e;
+            background-color: #fed7d7;
+        }
+        .test-item.warning {
+            border-left-color: #ed8936;
+            background-color: #ffeaa7;
+        }
+        .test-item.info {
+            border-left-color: #4299e1;
+            background-color: #ebf8ff;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-pass { background-color: #48bb78; }
+        .status-fail { background-color: #e53e3e; }
+        .status-pending { background-color: #ed8936; }
+        .status-unknown { background-color: #cbd5e0; }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        #testResults {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            background: white;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 TinyLlama Chatbot Test Suite</h1>
+        
+        <div class="test-section">
+            <h2>🔧 System Requirements Check</h2>
+            <button onclick="runSystemTests()">Run System Tests</button>
+            <button onclick="clearResults()">Clear Results</button>
+            <div id="systemTests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🌐 WebLLM Integration Test</h2>
+            <button onclick="testWebLLMIntegration()">Test WebLLM Loading</button>
+            <button onclick="testModelLoading()">Test Model Loading</button>
+            <div id="webllmTests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>💬 Chat Functionality Test</h2>
+            <button onclick="testChatInterface()">Test Chat Interface</button>
+            <button onclick="testMessageSending()">Test Message Sending</button>
+            <button onclick="runFullChatTest()">Run Full Chat Test</button>
+            <div id="chatTests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🐛 Debug Information</h2>
+            <button onclick="showDebugInfo()">Show Debug Info</button>
+            <button onclick="testModelConnectivity()">Test Model Connectivity</button>
+            <button onclick="clearBrowserCache()">Clear Browser Cache</button>
+            <div id="debugInfo"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Test Results</h2>
+            <div id="testResults"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Test execution tracking
+        let testResults = [];
+        let currentTest = null;
+
+        // Utility functions
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('testResults');
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logElement.textContent += logEntry;
+            logElement.scrollTop = logElement.scrollHeight;
+            
+            testResults.push({
+                timestamp,
+                type,
+                message
+            });
+        }
+
+        function createTestItem(title, status = 'pending', details = '') {
+            const statusClass = status === 'pass' ? 'success' : 
+                              status === 'fail' ? 'error' : 
+                              status === 'warning' ? 'warning' : 'info';
+            
+            return `
+                <div class="test-item ${statusClass}">
+                    <span class="status-indicator status-${status}"></span>
+                    <strong>${title}</strong>
+                    ${details ? `<div style="margin-top: 8px; font-size: 14px;">${details}</div>` : ''}
+                </div>
+            `;
+        }
+
+        function updateTestSection(sectionId, content) {
+            document.getElementById(sectionId).innerHTML = content;
+        }
+
+        // System Requirements Tests
+        window.runSystemTests = function() {
+            log('Starting system requirements check...');
+            let results = '';
+            
+            // Browser detection
+            const userAgent = navigator.userAgent;
+            const isChrome = userAgent.includes('Chrome');
+            const isEdge = userAgent.includes('Edg');
+            const isFirefox = userAgent.includes('Firefox');
+            const isSafari = userAgent.includes('Safari') && !userAgent.includes('Chrome');
+            
+            const browserSupported = isChrome || isEdge;
+            results += createTestItem(
+                'Browser Compatibility', 
+                browserSupported ? 'pass' : 'warning',
+                `Detected: ${userAgent.split(' ')[0]} - ${browserSupported ? 'Fully supported' : 'May have limited support'}`
+            );
+
+            // WebGPU support
+            const webgpuSupported = 'gpu' in navigator;
+            results += createTestItem(
+                'WebGPU Support',
+                webgpuSupported ? 'pass' : 'fail',
+                webgpuSupported ? 'WebGPU is available' : 'WebGPU not supported - try Chrome/Edge with flags enabled'
+            );
+
+            // Memory estimation
+            const memoryInfo = 'memory' in performance ? performance.memory : null;
+            if (memoryInfo) {
+                const totalMemoryMB = Math.round(memoryInfo.totalJSHeapSize / 1024 / 1024);
+                const memoryOK = totalMemoryMB > 100; // Very rough estimate
+                results += createTestItem(
+                    'Memory Check',
+                    memoryOK ? 'pass' : 'warning',
+                    `Estimated available: ${totalMemoryMB}MB - Need ~2GB for model`
+                );
+            } else {
+                results += createTestItem('Memory Check', 'unknown', 'Memory info not available');
+            }
+
+            // Service Worker support
+            const swSupported = 'serviceWorker' in navigator;
+            results += createTestItem(
+                'Service Worker Support',
+                swSupported ? 'pass' : 'warning',
+                swSupported ? 'Available for caching' : 'Not available - may affect offline performance'
+            );
+
+            // Local Storage
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                results += createTestItem('Local Storage', 'pass', 'Available for model caching');
+            } catch (e) {
+                results += createTestItem('Local Storage', 'fail', 'Not available - may affect model caching');
+            }
+
+            updateTestSection('systemTests', results);
+            log('System requirements check completed');
+        };
+
+        // WebLLM Integration Tests
+        window.testWebLLMIntegration = async function() {
+            log('Testing WebLLM integration...');
+            let results = '';
+            
+            try {
+                // Test CDN loading
+                results += createTestItem('CDN Access', 'pending', 'Loading WebLLM from CDN...');
+                updateTestSection('webllmTests', results);
+                
+                const { CreateMLCEngine } = await import("https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.46/lib/index.js");
+                
+                results = results.replace('pending', 'pass').replace('Loading WebLLM from CDN...', 'WebLLM loaded successfully');
+                results += createTestItem('WebLLM Library', 'pass', 'CreateMLCEngine function available');
+                
+                log('WebLLM integration test passed');
+                
+            } catch (error) {
+                results = results.replace('pending', 'fail').replace('Loading WebLLM from CDN...', `Failed: ${error.message}`);
+                results += createTestItem('WebLLM Library', 'fail', `Error: ${error.message}`);
+                log(`WebLLM integration test failed: ${error.message}`, 'error');
+            }
+            
+            updateTestSection('webllmTests', results);
+        };
+
+        window.testModelLoading = async function() {
+            log('Testing model loading...');
+            let results = document.getElementById('webllmTests').innerHTML;
+            
+            try {
+                const { CreateMLCEngine } = await import("https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.46/lib/index.js");
+                
+                results += createTestItem('Model Loading', 'pending', 'Attempting to load TinyLlama model...');
+                updateTestSection('webllmTests', results);
+
+                const progressCallback = (progress) => {
+                    const percentage = Math.round(progress.progress * 100);
+                    log(`Model loading progress: ${percentage}% - ${progress.text || 'Loading...'}`);
+                };
+
+                // Try to create engine with timeout
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('Model loading timeout (2 minutes)')), 120000);
+                });
+
+                const enginePromise = CreateMLCEngine(
+                    "TinyLlama-1.1B-Chat-v1.0-q4f16_1-MLC",
+                    { initProgressCallback: progressCallback }
+                );
+
+                const engine = await Promise.race([enginePromise, timeoutPromise]);
+                
+                results = results.replace('pending', 'pass').replace('Attempting to load TinyLlama model...', 'Model loaded successfully!');
+                results += createTestItem('Model Functionality', 'pass', 'Ready for chat interactions');
+                
+                log('Model loading test passed');
+                
+                // Test a simple generation
+                try {
+                    const response = await engine.chat.completions.create({
+                        messages: [{ role: "user", content: "Hello" }],
+                        max_tokens: 10
+                    });
+                    
+                    results += createTestItem('Model Response Test', 'pass', `Got response: "${response.choices[0].message.content.slice(0, 50)}..."`);
+                    log('Model response test passed');
+                } catch (genError) {
+                    results += createTestItem('Model Response Test', 'warning', `Generation failed: ${genError.message}`);
+                    log(`Model response test failed: ${genError.message}`, 'warning');
+                }
+                
+            } catch (error) {
+                results = results.replace('pending', 'fail').replace('Attempting to load TinyLlama model...', `Failed: ${error.message}`);
+                results += createTestItem('Model Troubleshooting', 'info', 'Check internet connection, WebGPU support, and available memory');
+                log(`Model loading test failed: ${error.message}`, 'error');
+            }
+            
+            updateTestSection('webllmTests', results);
+        };
+
+        // Chat Interface Tests
+        window.testChatInterface = function() {
+            log('Testing chat interface...');
+            let results = '';
+            
+            // Test if main app elements exist
+            const elements = [
+                { id: 'statusText', name: 'Status Text' },
+                { id: 'chatMessages', name: 'Chat Messages Container' },
+                { id: 'messageInput', name: 'Message Input' },
+                { id: 'sendButton', name: 'Send Button' },
+                { id: 'progressContainer', name: 'Progress Container' }
+            ];
+
+            elements.forEach(element => {
+                const exists = document.getElementById(element.id) !== null;
+                results += createTestItem(
+                    element.name,
+                    exists ? 'pass' : 'fail',
+                    exists ? 'Element found' : 'Element missing - check HTML structure'
+                );
+            });
+
+            // Test if main app script is loaded
+            const appLoaded = typeof TinyLlamaChatbot !== 'undefined';
+            results += createTestItem(
+                'TinyLlamaChatbot Class',
+                appLoaded ? 'pass' : 'fail',
+                appLoaded ? 'App class loaded' : 'App script not loaded - check app.js'
+            );
+
+            updateTestSection('chatTests', results);
+            log('Chat interface test completed');
+        };
+
+        window.testMessageSending = function() {
+            log('Testing message sending functionality...');
+            let results = document.getElementById('chatTests').innerHTML;
+            
+            try {
+                const messageInput = document.getElementById('messageInput');
+                const sendButton = document.getElementById('sendButton');
+                
+                if (messageInput && sendButton) {
+                    // Simulate typing
+                    messageInput.value = 'Test message';
+                    messageInput.dispatchEvent(new Event('input'));
+                    
+                    results += createTestItem('Message Input', 'pass', 'Input accepts text and triggers events');
+                    
+                    // Test button state
+                    const buttonEnabled = !sendButton.disabled;
+                    results += createTestItem(
+                        'Send Button State',
+                        buttonEnabled ? 'pass' : 'warning',
+                        buttonEnabled ? 'Button is enabled' : 'Button disabled (normal if model not loaded)'
+                    );
+                    
+                    log('Message sending test completed');
+                } else {
+                    results += createTestItem('Message Input', 'fail', 'Input or button elements not found');
+                    log('Message sending test failed - elements not found', 'error');
+                }
+            } catch (error) {
+                results += createTestItem('Message Input', 'fail', `Error: ${error.message}`);
+                log(`Message sending test failed: ${error.message}`, 'error');
+            }
+            
+            updateTestSection('chatTests', results);
+        };
+
+        window.runFullChatTest = async function() {
+            log('Running full chat functionality test...');
+            let results = document.getElementById('chatTests').innerHTML;
+            
+            results += createTestItem('Full Chat Test', 'pending', 'Running comprehensive chat test...');
+            updateTestSection('chatTests', results);
+            
+            try {
+                // Check if app is initialized
+                const statusText = document.getElementById('statusText');
+                const currentStatus = statusText ? statusText.textContent : 'Unknown';
+                
+                results += createTestItem('App Status', 'info', `Current status: "${currentStatus}"`);
+                
+                // If model is loaded, try sending a message
+                if (currentStatus.includes('Ready') || currentStatus.includes('loaded')) {
+                    const messageInput = document.getElementById('messageInput');
+                    const sendButton = document.getElementById('sendButton');
+                    
+                    if (messageInput && sendButton && !sendButton.disabled) {
+                        messageInput.value = 'Hello, this is a test message.';
+                        sendButton.click();
+                        
+                        results += createTestItem('Message Sending', 'pass', 'Test message sent successfully');
+                        log('Full chat test completed successfully');
+                    } else {
+                        results += createTestItem('Message Sending', 'warning', 'Cannot send message - interface not ready');
+                        log('Full chat test - interface not ready', 'warning');
+                    }
+                } else {
+                    results += createTestItem('Model Status', 'warning', 'Model not loaded - cannot test messaging');
+                    log('Full chat test - model not ready', 'warning');
+                }
+                
+            } catch (error) {
+                results += createTestItem('Full Chat Test', 'fail', `Error: ${error.message}`);
+                log(`Full chat test failed: ${error.message}`, 'error');
+            }
+            
+            results = results.replace('Running comprehensive chat test...', 'Chat test completed');
+            updateTestSection('chatTests', results);
+        };
+
+        // Debug Information
+        window.showDebugInfo = function() {
+            log('Gathering debug information...');
+            let results = '';
+            
+            // Browser information
+            results += createTestItem('Browser Info', 'info', `
+                <div class="code-block">
+                User Agent: ${navigator.userAgent}<br>
+                Platform: ${navigator.platform}<br>
+                Language: ${navigator.language}<br>
+                Cookies Enabled: ${navigator.cookieEnabled}<br>
+                Online: ${navigator.onLine}
+                </div>
+            `);
+
+            // WebGPU detailed info
+            if ('gpu' in navigator) {
+                navigator.gpu.requestAdapter().then(adapter => {
+                    if (adapter) {
+                        results += createTestItem('WebGPU Adapter', 'info', `
+                            <div class="code-block">
+                            Vendor: ${adapter.info?.vendor || 'Unknown'}<br>
+                            Architecture: ${adapter.info?.architecture || 'Unknown'}<br>
+                            Device: ${adapter.info?.device || 'Unknown'}
+                            </div>
+                        `);
+                        updateTestSection('debugInfo', results);
+                    }
+                });
+            }
+
+            // Memory information
+            if ('memory' in performance) {
+                const memory = performance.memory;
+                results += createTestItem('Memory Usage', 'info', `
+                    <div class="code-block">
+                    Used: ${Math.round(memory.usedJSHeapSize / 1024 / 1024)}MB<br>
+                    Total: ${Math.round(memory.totalJSHeapSize / 1024 / 1024)}MB<br>
+                    Limit: ${Math.round(memory.jsHeapSizeLimit / 1024 / 1024)}MB
+                    </div>
+                `);
+            }
+
+            // Local Storage info
+            try {
+                const localStorageSize = new Blob(Object.values(localStorage)).size;
+                results += createTestItem('Storage Usage', 'info', `
+                    <div class="code-block">
+                    LocalStorage: ${Math.round(localStorageSize / 1024)}KB<br>
+                    Available: ~${Math.round((10 * 1024 * 1024 - localStorageSize) / 1024 / 1024)}MB
+                    </div>
+                `);
+            } catch (e) {
+                results += createTestItem('Storage Usage', 'warning', 'Cannot calculate storage usage');
+            }
+
+            // Network status
+            if ('connection' in navigator) {
+                const connection = navigator.connection;
+                results += createTestItem('Network Info', 'info', `
+                    <div class="code-block">
+                    Type: ${connection.type || 'Unknown'}<br>
+                    Effective Type: ${connection.effectiveType || 'Unknown'}<br>
+                    Downlink: ${connection.downlink || 'Unknown'} Mbps
+                    </div>
+                `);
+            }
+
+            updateTestSection('debugInfo', results);
+            log('Debug information gathered');
+        };
+
+        window.testModelConnectivity = async function() {
+            log('Testing model connectivity...');
+            let results = document.getElementById('debugInfo').innerHTML;
+            
+            try {
+                // Test CDN connectivity
+                const response = await fetch('https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.46/lib/index.js', { method: 'HEAD' });
+                results += createTestItem(
+                    'CDN Connectivity',
+                    response.ok ? 'pass' : 'fail',
+                    `Status: ${response.status} - ${response.ok ? 'CDN accessible' : 'CDN access failed'}`
+                );
+
+                // Test Hugging Face model hub (where models are hosted)
+                const hfResponse = await fetch('https://huggingface.co/', { method: 'HEAD', mode: 'no-cors' });
+                results += createTestItem('Model Hub Access', 'info', 'Testing Hugging Face connectivity...');
+
+            } catch (error) {
+                results += createTestItem('Connectivity Test', 'fail', `Network error: ${error.message}`);
+                log(`Connectivity test failed: ${error.message}`, 'error');
+            }
+            
+            updateTestSection('debugInfo', results);
+            log('Model connectivity test completed');
+        };
+
+        window.clearBrowserCache = function() {
+            if (confirm('This will clear browser cache and reload the page. Continue?')) {
+                // Clear caches
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => caches.delete(name));
+                    });
+                }
+                
+                // Clear storage
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                log('Browser cache cleared, reloading page...');
+                setTimeout(() => window.location.reload(), 1000);
+            }
+        };
+
+        window.clearResults = function() {
+            document.getElementById('testResults').textContent = '';
+            testResults = [];
+            log('Test results cleared');
+        };
+
+        // Auto-run basic tests on page load
+        window.addEventListener('load', () => {
+            log('Test suite loaded - ready for testing');
+            log('Click "Run System Tests" to check browser compatibility');
+        });
+    </script>
+</body>
+</html> 

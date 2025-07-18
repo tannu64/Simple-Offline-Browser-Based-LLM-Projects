@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline To-Do App with Smart Suggestions</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.16.3/dist/ort.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 Smart To-Do App</h1>
+            <p>Add tasks and get AI-powered suggestions based on your history</p>
+        </header>
+
+        <div class="todo-section">
+            <div class="input-group">
+                <input type="text" id="taskInput" placeholder="Enter a new task..." autocomplete="off">
+                <button id="addTaskBtn">Add Task</button>
+            </div>
+
+            <div class="suggestions" id="suggestions">
+                <h3>💡 Smart Suggestions</h3>
+                <div class="suggestion-list" id="suggestionList">
+                    <p class="loading">Loading AI model...</p>
+                </div>
+                <button id="testSuggestionsBtn" style="margin-top: 10px; padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer;">🧪 Test Suggestions</button>
+            </div>
+
+            <div class="task-list">
+                <h3>📋 Your Tasks</h3>
+                <div id="taskList"></div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="totalTasks">0</span>
+                <span class="stat-label">Total Tasks</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="completedTasks">0</span>
+                <span class="stat-label">Completed</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="pendingTasks">0</span>
+                <span class="stat-label">Pending</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="test.js"></script>
+</body>
+</html> 

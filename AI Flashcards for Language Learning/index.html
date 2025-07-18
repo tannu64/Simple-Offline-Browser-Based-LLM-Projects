@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Flashcards for Language Learning</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Flashcards</h1>
+            <p>Learn vocabulary with AI-generated examples</p>
+        </header>
+
+        <div class="controls">
+            <div class="input-group">
+                <input type="text" id="wordInput" placeholder="Enter a word to learn..." />
+                <button id="addWordBtn">Add Word</button>
+            </div>
+                    <div class="model-controls">
+            <label for="modelSelect">Model:</label>
+            <select id="modelSelect">
+                <option value="deepseek-r1:1.5b" selected>DeepSeek R1 1.5B (Recommended)</option>
+                <option value="llama2">Llama 2</option>
+                <option value="llama2:7b">Llama 2 7B</option>
+                <option value="llama2:13b">Llama 2 13B</option>
+                <option value="llama2:70b">Llama 2 70B</option>
+                <option value="mistral">Mistral</option>
+                <option value="codellama">Code Llama</option>
+            </select>
+            <button id="loadModelBtn">Connect to Ollama</button>
+        </div>
+        </div>
+
+        <div class="status" id="status">
+            <div class="status-item">
+                <span class="status-label">Model Status:</span>
+                <span class="status-value" id="modelStatus">Not loaded</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Progress:</span>
+                <span class="status-value" id="progress">0%</span>
+            </div>
+        </div>
+
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-front">
+                    <h2 id="currentWord">Add a word to get started</h2>
+                    <p class="instruction">Click to generate examples</p>
+                </div>
+                <div class="flashcard-back" id="flashcardBack">
+                    <h3>Example Sentences:</h3>
+                    <div id="examples" class="examples">
+                        <p class="placeholder">Click the card to generate examples...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button id="prevBtn" class="nav-btn" disabled>← Previous</button>
+            <span id="cardCounter">0 / 0</span>
+            <button id="nextBtn" class="nav-btn" disabled>Next →</button>
+        </div>
+
+        <div class="word-list">
+            <h3>Vocabulary List</h3>
+            <div id="wordList" class="word-items">
+                <p class="empty-state">No words added yet. Add your first word above!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 

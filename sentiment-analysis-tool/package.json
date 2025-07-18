@@ -1,0 +1,167 @@
+{
+  "name": "ai-sentiment-analysis-tool",
+  "version": "1.0.0",
+  "description": "Privacy-first browser-based sentiment analysis tool powered by Transformers.js and BERT models",
+  "main": "index.html",
+  "type": "module",
+  "keywords": [
+    "sentiment-analysis",
+    "transformers",
+    "bert",
+    "ai",
+    "machine-learning",
+    "nlp",
+    "browser",
+    "offline",
+    "privacy",
+    "client-side",
+    "onnx",
+    "huggingface",
+    "transformers.js",
+    "distilbert",
+    "roberta",
+    "text-classification",
+    "emotion-detection",
+    "javascript"
+  ],
+  "author": {
+    "name": "AI Assistant",
+    "email": "assistant@example.com",
+    "url": "https://github.com/yourusername"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/yourusername/ai-sentiment-analysis-tool#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/ai-sentiment-analysis-tool.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/ai-sentiment-analysis-tool/issues"
+  },
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "serve": "python -m http.server 8000",
+    "start-node": "npx http-server -p 8000 -c-1",
+    "serve-node": "npx http-server -p 8000 -c-1 --cors",
+    "dev": "python -m http.server 8000",
+    "test": "echo 'Open test-suite.html in your browser to run tests'",
+    "test-browser": "python -c \"import webbrowser; webbrowser.open('http://localhost:8000/test-suite.html')\"",
+    "demo": "python -c \"import webbrowser; webbrowser.open('http://localhost:8000')\"",
+    "validate": "echo 'Checking browser compatibility...' && python -c \"import webbrowser; webbrowser.open('http://localhost:8000/test-suite.html')\"",
+    "build": "echo 'This is a static web application - no build step required'",
+    "deploy": "echo 'Deploy by uploading files to any web server or CDN'",
+    "help": "echo 'Available commands: start, test, demo, validate'"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.6.3"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "peerDependencies": {
+    "python": ">=3.6"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "browserslist": [
+    "Chrome >= 88",
+    "Firefox >= 90",
+    "Safari >= 14",
+    "Edge >= 88",
+    "iOS >= 14",
+    "Android >= 81"
+  ],
+  "config": {
+    "port": "8000",
+    "defaultModel": "Xenova/distilbert-base-uncased-finetuned-sst-2-english"
+  },
+  "directories": {
+    "test": "test-suite.html"
+  },
+  "files": [
+    "index.html",
+    "styles.css",
+    "app.js",
+    "test-suite.html",
+    "test-suite.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/yourusername"
+  },
+  "preferGlobal": false,
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "os": [
+    "darwin",
+    "linux", 
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "packageManager": "npm@8.0.0",
+  "workspaces": [],
+  "metadata": {
+    "models": {
+      "distilbert": {
+        "name": "DistilBERT SST-2",
+        "size": "67MB",
+        "speed": "fast",
+        "accuracy": "high",
+        "languages": ["en"]
+      },
+      "bert-multilingual": {
+        "name": "BERT Multilingual",
+        "size": "167MB", 
+        "speed": "medium",
+        "accuracy": "high",
+        "languages": ["multi"]
+      },
+      "roberta-twitter": {
+        "name": "RoBERTa Twitter",
+        "size": "125MB",
+        "speed": "medium", 
+        "accuracy": "high",
+        "languages": ["en"],
+        "specialty": "social-media"
+      }
+    },
+    "features": [
+      "Real-time sentiment analysis",
+      "Multiple BERT-based models",
+      "Complete privacy (no server communication)",
+      "Offline operation after initial setup",
+      "Comprehensive testing suite",
+      "Performance monitoring",
+      "Cross-platform browser support",
+      "Responsive mobile-friendly design"
+    ],
+    "requirements": {
+      "browser": {
+        "es6-modules": true,
+        "webassembly": true,
+        "fetch-api": true,
+        "indexeddb": false
+      },
+      "system": {
+        "memory": "2GB minimum, 4GB recommended",
+        "storage": "200MB for model caching",
+        "connection": "Required for initial model download"
+      }
+    },
+    "performance": {
+      "modelLoadTime": "10-60 seconds (first time)",
+      "analysisSpeed": "100-1000ms per text",
+      "memoryUsage": "150-300MB during operation",
+      "throughput": "1-10 analyses per second"
+    }
+  }
+} 

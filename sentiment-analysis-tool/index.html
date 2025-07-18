@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Sentiment Analysis Tool - Privacy-First Text Analysis</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.6.3"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎭 AI Sentiment Analysis</h1>
+            <p class="subtitle">Privacy-first sentiment analysis powered by Transformers.js</p>
+            <div class="privacy-badge">
+                <span class="privacy-icon">🔒</span>
+                <span>100% Private - Runs in your browser</span>
+            </div>
+        </header>
+
+        <div class="model-section">
+            <h2>📦 Model Configuration</h2>
+            <div class="model-status" id="modelStatus">
+                <div class="status-indicator" id="statusIndicator">
+                    <div class="loading-spinner" id="loadingSpinner"></div>
+                    <span id="statusText">Loading model...</span>
+                </div>
+                <div class="progress-container" id="progressContainer" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">0%</span>
+                </div>
+            </div>
+
+            <div class="model-selector">
+                <label for="modelSelect">Choose Sentiment Model:</label>
+                <select id="modelSelect" disabled>
+                    <option value="Xenova/distilbert-base-uncased-finetuned-sst-2-english">DistilBERT SST-2 (Fast, Recommended)</option>
+                    <option value="Xenova/bert-base-multilingual-uncased-sentiment">BERT Multilingual (Slower, Multiple Languages)</option>
+                    <option value="Xenova/cardiffnlp-twitter-roberta-base-sentiment-latest">RoBERTa Twitter (Social Media Text)</option>
+                </select>
+                <button id="switchModelBtn" disabled>Switch Model</button>
+            </div>
+        </div>
+
+        <div class="analysis-section">
+            <h2>💬 Text Analysis</h2>
+            
+            <div class="input-section">
+                <div class="input-wrapper">
+                    <label for="textInput">Enter text to analyze:</label>
+                    <textarea 
+                        id="textInput" 
+                        placeholder="Type or paste your text here... Try something like 'I love this new product!' or 'This service was terrible.'"
+                        rows="6"
+                        disabled
+                    ></textarea>
+                    <div class="char-counter">
+                        <span id="charCount">0</span> / 512 characters
+                    </div>
+                </div>
+                
+                <div class="quick-examples">
+                    <h3>Quick Examples:</h3>
+                    <div class="example-buttons">
+                        <button class="example-btn" data-text="I absolutely love this new smartphone! The camera quality is amazing and the battery life exceeds my expectations.">😍 Positive Example</button>
+                        <button class="example-btn" data-text="The customer service was disappointing and the product arrived damaged. Very frustrating experience overall.">😠 Negative Example</button>
+                        <button class="example-btn" data-text="The weather today is partly cloudy with a chance of rain. The temperature is around 20 degrees celsius.">😐 Neutral Example</button>
+                        <button class="example-btn" data-text="I'm not sure how I feel about this new policy. It has some good points but also some concerning aspects.">🤔 Mixed Example</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-section">
+                <button id="analyzeBtn" disabled>
+                    <span class="btn-icon">🔍</span>
+                    <span class="btn-text">Analyze Sentiment</span>
+                    <div class="btn-spinner" id="analyzeSpinner"></div>
+                </button>
+                
+                <button id="clearBtn" disabled>
+                    <span class="btn-icon">🗑️</span>
+                    Clear Text
+                </button>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection" style="display: none;">
+            <h2>📊 Analysis Results</h2>
+            
+            <div class="sentiment-overview">
+                <div class="sentiment-primary" id="sentimentPrimary">
+                    <div class="sentiment-emoji" id="sentimentEmoji">🤖</div>
+                    <div class="sentiment-details">
+                        <h3 id="sentimentLabel">Analyzing...</h3>
+                        <div class="confidence-score" id="confidenceScore">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detailed-scores" id="detailedScores">
+                <h3>Detailed Breakdown:</h3>
+                <div class="score-grid" id="scoreGrid">
+                    <!-- Score items will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="sentiment-explanation" id="sentimentExplanation">
+                <h3>What does this mean?</h3>
+                <p id="explanationText">Analysis explanation will appear here...</p>
+            </div>
+
+            <div class="analysis-metadata">
+                <div class="metadata-item">
+                    <span class="metadata-label">Model Used:</span>
+                    <span id="usedModel">-</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Analysis Time:</span>
+                    <span id="analysisTime">-</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Text Length:</span>
+                    <span id="textLength">-</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h2>ℹ️ About This Tool</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>🔒 Privacy First</h3>
+                    <p>All analysis happens in your browser. No data is sent to external servers, ensuring complete privacy.</p>
+                </div>
+                <div class="info-card">
+                    <h3>🤖 AI-Powered</h3>
+                    <p>Uses state-of-the-art transformer models (BERT, DistilBERT, RoBERTa) for accurate sentiment analysis.</p>
+                </div>
+                <div class="info-card">
+                    <h3>🌐 Works Offline</h3>
+                    <p>After initial model download, the tool works completely offline. Perfect for sensitive content.</p>
+                </div>
+                <div class="info-card">
+                    <h3>⚡ Fast & Efficient</h3>
+                    <p>Optimized models provide quick analysis while maintaining high accuracy and low resource usage.</p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>
+                <strong>Powered by Transformers.js</strong> • 
+                <a href="https://github.com/huggingface/transformers.js" target="_blank">Learn More</a> • 
+                <a href="#" id="showTechnicalInfo">Technical Details</a>
+            </p>
+        </footer>
+    </div>
+
+    <!-- Technical Info Modal -->
+    <div class="modal" id="technicalModal" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close" id="modalClose">&times;</span>
+            <h2>🔬 Technical Information</h2>
+            
+            <div class="tech-section">
+                <h3>Models & Performance</h3>
+                <div class="tech-table">
+                    <div class="tech-row">
+                        <span class="tech-label">DistilBERT SST-2:</span>
+                        <span class="tech-value">~67MB, ~500ms inference, Binary sentiment</span>
+                    </div>
+                    <div class="tech-row">
+                        <span class="tech-label">BERT Multilingual:</span>
+                        <span class="tech-value">~167MB, ~1200ms inference, Multiple languages</span>
+                    </div>
+                    <div class="tech-row">
+                        <span class="tech-label">RoBERTa Twitter:</span>
+                        <span class="tech-value">~125MB, ~800ms inference, Social media optimized</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tech-section">
+                <h3>Browser Requirements</h3>
+                <ul>
+                    <li>Modern browser with ES6 module support</li>
+                    <li>Minimum 2GB available RAM</li>
+                    <li>Stable internet connection for initial model download</li>
+                    <li>WebAssembly (WASM) support for model execution</li>
+                </ul>
+            </div>
+
+            <div class="tech-section">
+                <h3>Supported Tasks</h3>
+                <ul>
+                    <li>Binary sentiment classification (Positive/Negative)</li>
+                    <li>Multi-class sentiment analysis (Positive/Negative/Neutral)</li>
+                    <li>Confidence scoring for all predictions</li>
+                    <li>Real-time text analysis as you type</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis Tool - Test Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            color: #e2e8f0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #63b3ed;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .test-section h2 {
+            color: #81e6d9;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .test-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .test-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .test-btn:disabled {
+            background: #4a5568;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .test-btn.running {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+        }
+        
+        .test-btn.success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+        
+        .test-btn.error {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+        }
+        
+        .test-output {
+            background: #1a202c;
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .test-output .success {
+            color: #68d391;
+        }
+        
+        .test-output .error {
+            color: #fc8181;
+        }
+        
+        .test-output .warning {
+            color: #f6e05e;
+        }
+        
+        .test-output .info {
+            color: #63b3ed;
+        }
+        
+        .test-output .timestamp {
+            color: #a0aec0;
+            font-size: 0.8rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #63b3ed;
+            display: block;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: #a0aec0;
+            margin-top: 0.25rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #2d3748;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-indicator.pending {
+            background: #a0aec0;
+        }
+        
+        .status-indicator.running {
+            background: #ed8936;
+            animation: pulse 1s infinite;
+        }
+        
+        .status-indicator.success {
+            background: #48bb78;
+        }
+        
+        .status-indicator.error {
+            background: #e53e3e;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .test-list {
+            list-style: none;
+        }
+        
+        .test-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        
+        .browser-info {
+            background: rgba(99, 179, 237, 0.1);
+            border: 1px solid #63b3ed;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .browser-info h3 {
+            color: #63b3ed;
+            margin-bottom: 0.5rem;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #4a5568;
+            border-top: 2px solid #63b3ed;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .code-snippet {
+            background: #1a202c;
+            border: 1px solid #2d3748;
+            border-radius: 4px;
+            padding: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            margin: 0.5rem 0;
+        }
+        
+        .performance-chart {
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: flex;
+            align-items: end;
+            padding: 1rem;
+            gap: 4px;
+        }
+        
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 2px 2px 0 0;
+            min-height: 10px;
+            transition: height 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Sentiment Analysis Test Suite</h1>
+            <p>Comprehensive testing for browser-based sentiment analysis</p>
+        </div>
+        
+        <div class="browser-info" id="browserInfo">
+            <h3>🌐 Browser Environment</h3>
+            <div id="browserDetails">Loading browser information...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔧 System Requirements Test</h2>
+            <div class="test-controls">
+                <button class="test-btn" id="testRequirements">Test Requirements</button>
+                <button class="test-btn" id="testBrowserSupport">Test Browser Support</button>
+                <button class="test-btn" id="testPerformance">Test Performance</button>
+            </div>
+            <div class="test-output" id="requirementsOutput">
+Ready to test system requirements...
+
+Required features:
+- ES6 Modules support
+- WebAssembly (WASM) support  
+- Fetch API support
+- IndexedDB support (for model caching)
+- Sufficient memory (recommended: 4GB+ RAM)
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📦 Model Loading Tests</h2>
+            <div class="test-controls">
+                <button class="test-btn" id="testModelLoading">Test Model Loading</button>
+                <button class="test-btn" id="testModelSwitching">Test Model Switching</button>
+                <button class="test-btn" id="testModelCaching">Test Model Caching</button>
+            </div>
+            <div class="progress-bar" id="modelProgress" style="display: none;">
+                <div class="progress-fill" id="modelProgressFill">0%</div>
+            </div>
+            <div class="test-output" id="modelOutput">
+Ready to test model loading...
+
+Available models:
+1. DistilBERT SST-2 (Recommended) - ~67MB
+2. BERT Multilingual - ~167MB  
+3. RoBERTa Twitter - ~125MB
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎭 Sentiment Analysis Tests</h2>
+            <div class="test-controls">
+                <button class="test-btn" id="testBasicSentiment">Test Basic Sentiment</button>
+                <button class="test-btn" id="testAdvancedSentiment">Test Advanced Cases</button>
+                <button class="test-btn" id="testBatchAnalysis">Test Batch Analysis</button>
+                <button class="test-btn" id="testEdgeCases">Test Edge Cases</button>
+            </div>
+            <div class="test-output" id="sentimentOutput">
+Ready to test sentiment analysis...
+
+Test cases will include:
+- Basic positive/negative examples
+- Neutral text examples
+- Mixed sentiment examples
+- Short text handling
+- Long text handling
+- Special characters and emojis
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>⚡ Performance Metrics</h2>
+            <div class="test-controls">
+                <button class="test-btn" id="runPerformanceTests">Run Performance Tests</button>
+                <button class="test-btn" id="runStressTests">Run Stress Tests</button>
+                <button class="test-btn" id="clearMetrics">Clear Metrics</button>
+            </div>
+            <div class="metrics-grid" id="metricsGrid">
+                <div class="metric-card">
+                    <span class="metric-value" id="modelLoadTime">-</span>
+                    <div class="metric-label">Model Load Time (ms)</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="avgAnalysisTime">-</span>
+                    <div class="metric-label">Avg Analysis Time (ms)</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="totalAnalyses">-</span>
+                    <div class="metric-label">Total Analyses</div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-value" id="successRate">-</span>
+                    <div class="metric-label">Success Rate (%)</div>
+                </div>
+            </div>
+            <div class="performance-chart" id="performanceChart">
+                <!-- Performance bars will be added here -->
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🛠️ Automated Test Suite</h2>
+            <div class="test-controls">
+                <button class="test-btn" id="runAllTests">Run All Tests</button>
+                <button class="test-btn" id="runQuickTests">Run Quick Tests</button>
+                <button class="test-btn" id="stopTests">Stop Tests</button>
+            </div>
+            <div class="progress-bar" id="testProgress" style="display: none;">
+                <div class="progress-fill" id="testProgressFill">0%</div>
+            </div>
+            <ul class="test-list" id="testList">
+                <li class="test-item">
+                    <span class="status-indicator pending"></span>
+                    Browser Compatibility Check
+                </li>
+                <li class="test-item">
+                    <span class="status-indicator pending"></span>
+                    Transformers.js Library Loading
+                </li>
+                <li class="test-item">
+                    <span class="status-indicator pending"></span>
+                    Model Download & Initialization
+                </li>
+                <li class="test-item">
+                    <span class="status-indicator pending"></span>
+                    Basic Sentiment Analysis
+                </li>
+                <li class="test-item">
+                    <span class="status-indicator pending"></span>
+                    Advanced Sentiment Cases
+                </li>
+                <li class="test-item">
+                    <span class="status-indicator pending"></span>
+                    Performance Benchmarks
+                </li>
+                <li class="test-item">
+                    <span class="status-indicator pending"></span>
+                    Error Handling
+                </li>
+                <li class="test-item">
+                    <span class="status-indicator pending"></span>
+                    Memory Usage Check
+                </li>
+            </ul>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 Test Results Summary</h2>
+            <div class="test-output" id="summaryOutput">
+No tests have been run yet.
+
+This section will show:
+- Overall test results
+- Identified issues and warnings
+- Performance recommendations
+- Browser compatibility status
+- Suggested optimizations
+            </div>
+        </div>
+    </div>
+    
+    <script src="test-suite.js"></script>
+</body>
+</html> 
